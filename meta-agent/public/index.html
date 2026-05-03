@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Ads Agent — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;
+    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+    --accent:#e8580c;--text:#f0ede8;--muted:#888;
+    --green:#4ade80;--yellow:#fbbf24;--red:#f87171;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+  .logo-dot{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:var(--surface2);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  .stat-val{font-size:26px;font-weight:600;font-family:'Syne',sans-serif}
+  .stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+  .section-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .section-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
+  .alert-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .alert-item:last-child{border-bottom:none}
+  .alert-name{font-size:13px;font-weight:500;margin-bottom:3px}
+  .alert-meta{font-size:12px;color:var(--muted)}
+  .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em;flex-shrink:0;white-space:nowrap}
+  .badge-red{background:rgba(248,113,113,.15);color:var(--red)}
+  .badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
+  .badge-green{background:rgba(74,222,128,.15);color:var(--green)}
+  .btn{padding:8px 16px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{opacity:.85}
+  .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+  .btn-red{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+  .btn-green{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3)}
+  .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+  .empty{padding:32px;text-align:center;color:var(--muted);font-size:13px}
+  .last-scan{font-size:12px;color:var(--muted)}
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-dot">M</div>
+    Meta Ads Agent
+  </div>
+  <div class="status">
+    <div class="dot"></div>
+    <span id="status-text">Connecting…</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="actions-row">
+    <button class="btn btn-primary" onclick="scan()">🔍 Scan Now</button>
+    <button class="btn btn-ghost" onclick="scanAndAlert()">📱 Scan + WhatsApp Alert</button>
+    <button class="btn btn-ghost" onclick="testWhatsApp()">🧪 Test WhatsApp</button>
+  </div>
+
+  <div class="grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Ads Scanned</div>
+      <div class="stat-val" id="total-ads">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Red Alerts</div>
+      <div class="stat-val red" id="red-count">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Yellow Alerts</div>
+      <div class="stat-val yellow" id="yellow-count">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Scale Opportunities</div>
+      <div class="stat-val green" id="green-count">—</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🔴 Red Alerts — Cut These</span>
+      <span class="last-scan" id="last-scan">Not scanned yet</span>
+    </div>
+    <div id="red-list"><div class="empty">Run a scan to see alerts</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🟢 Scale Opportunities</span>
+    </div>
+    <div id="green-list"><div class="empty">Run a scan to see winners</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🟡 Yellow — Watch These</span>
+    </div>
+    <div id="yellow-list"><div class="empty">Run a scan to see yellow alerts</div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function scan() {
+  document.getElementById('status-text').textContent = 'Scanning…';
+  toast('Scanning your Meta account…');
+  try {
+    const res = await fetch('/api/scan');
+    const data = await res.json();
+    renderResults(data);
+    document.getElementById('status-text').textContent = 'Live · act_2091379461674287';
+    document.getElementById('last-scan').textContent = 'Last scan: ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    toast('Error: ' + e.message);
+    document.getElementById('status-text').textContent = 'Error — retry';
+  }
+}
+
+async function scanAndAlert() {
+  toast('Scanning + sending WhatsApp alert…');
+  const res = await fetch('/api/scan-and-alert', { method: 'POST' });
+  const data = await res.json();
+  renderResults(data);
+  toast('✅ WhatsApp alert sent to +254724485173');
+}
+
+async function testWhatsApp() {
+  toast('Sending test WhatsApp…');
+  await fetch('/api/send-whatsapp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: '✅ Meta Ads Agent test message — connected and running!' })
+  });
+  toast('✅ Test sent to +254724485173');
+}
+
+async function pauseAd(adId, adName) {
+  if (!confirm(`Pause ad: ${adName}?`)) return;
+  const res = await fetch('/api/pause-ad', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adId })
+  });
+  const data = await res.json();
+  toast(data.success ? `✂️ Paused: ${adName}` : 'Error pausing ad');
+  setTimeout(scan, 1000);
+}
+
+function renderResults(data) {
+  document.getElementById('total-ads').textContent = data.totalAds || 0;
+  document.getElementById('red-count').textContent = data.redAlerts?.length || 0;
+  document.getElementById('yellow-count').textContent = data.yellowAlerts?.length || 0;
+  document.getElementById('green-count').textContent = data.greenAlerts?.length || 0;
+
+  renderList('red-list', data.redAlerts || [], 'red');
+  renderList('green-list', data.greenAlerts || [], 'green');
+  renderList('yellow-list', data.yellowAlerts || [], 'yellow');
+}
+
+function renderList(elId, items, type) {
+  const el = document.getElementById(elId);
+  if (!items.length) { el.innerHTML = '<div class="empty">None</div>'; return; }
+  el.innerHTML = items.map(item => `
+    <div class="alert-item">
+      <div>
+        <div class="alert-name">${item.adName || 'Unknown Ad'}</div>
+        <div class="alert-meta">Campaign: ${item.campaignName} · Spend: $${parseFloat(item.spend||0).toFixed(2)} · ${item.alert.metric}: ${item.alert.value}</div>
+        <div class="alert-meta" style="margin-top:3px;color:${type==='red'?'var(--red)':type==='green'?'var(--green)':'var(--yellow)'}">${item.alert.reason}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <span class="badge badge-${type}">${item.alert.verdict}</span>
+        ${type === 'red' && item.adId ? `<button class="btn btn-red" onclick="pauseAd('${item.adId}','${item.adName}')">Pause</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// Check health on load
+fetch('/api/health').then(r => r.json()).then(d => {
+  document.getElementById('status-text').textContent = 'Live · ' + d.account;
+  scan();
+}).catch(() => {
+  document.getElementById('status-text').textContent = 'Offline';
+});
+</script>
+</body>
+</html>
