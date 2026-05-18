@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta Ads Agent — Dashboard</title>
+<title>Ads Agent + Polymarket Scanner</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;
     --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
-    --accent:#e8580c;--text:#f0ede8;--muted:#888;
+    --accent:#e8580c;--poly:#6c47ff;--text:#f0ede8;--muted:#888;
     --green:#4ade80;--yellow:#fbbf24;--red:#f87171;
   }
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
@@ -20,12 +20,16 @@
   .status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:var(--surface2);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
   .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .container{max-width:1100px;margin:0 auto;padding:24px}
+  .container{max-width:1200px;margin:0 auto;padding:24px}
+  .tabs{display:flex;gap:0;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .tab{flex:1;padding:12px 16px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .15s}
+  .tab.active{background:var(--surface2);color:var(--text)}
+  .tab-content{display:none}.tab-content.active{display:block}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
   .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
   .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
   .stat-val{font-size:26px;font-weight:600;font-family:'Syne',sans-serif}
-  .stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}
+  .stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}.stat-val.poly{color:var(--poly)}
   .section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
   .section-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
   .section-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
@@ -37,25 +41,42 @@
   .badge-red{background:rgba(248,113,113,.15);color:var(--red)}
   .badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
   .badge-green{background:rgba(74,222,128,.15);color:var(--green)}
+  .badge-poly{background:rgba(108,71,255,.2);color:#a78bfa}
+  .badge-high{background:rgba(248,113,113,.15);color:var(--red)}
+  .badge-medium{background:rgba(251,191,36,.15);color:var(--yellow)}
+  .badge-low{background:rgba(74,222,128,.15);color:var(--green)}
   .btn{padding:8px 16px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
   .btn-primary{background:var(--accent);color:#fff}
-  .btn-primary:hover{opacity:.85}
+  .btn-poly{background:var(--poly);color:#fff}
+  .btn-primary:hover,.btn-poly:hover{opacity:.85}
   .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted)}
-  .btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+  .btn-ghost:hover{color:var(--text)}
   .btn-red{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
   .btn-green{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3)}
   .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
   .empty{padding:32px;text-align:center;color:var(--muted);font-size:13px}
   .last-scan{font-size:12px;color:var(--muted)}
-  #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px}
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:320px;z-index:100}
   #toast.show{opacity:1}
+  .arb-opportunity{padding:16px 18px;border-bottom:1px solid var(--border)}
+  .arb-opportunity:last-child{border-bottom:none}
+  .arb-question{font-size:13px;font-weight:500;margin-bottom:8px;line-height:1.4}
+  .arb-metrics{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .arb-metric{font-size:12px;color:var(--muted)}
+  .arb-metric span{color:var(--text);font-weight:500}
+  .arb-link{font-size:12px;color:var(--poly);text-decoration:none}
+  .arb-link:hover{text-decoration:underline}
+  .progress-bar{height:3px;background:var(--surface2);border-radius:99px;margin-bottom:16px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--poly);border-radius:99px;transition:width .3s}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--poly);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">
-    <div class="logo-dot">M</div>
-    Meta Ads Agent
+    <div class="logo-dot">A</div>
+    Agent Dashboard
   </div>
   <div class="status">
     <div class="dot"></div>
@@ -64,76 +85,166 @@
 </header>
 
 <div class="container">
-  <div class="actions-row">
-    <button class="btn btn-primary" onclick="scan()">🔍 Scan Now</button>
-    <button class="btn btn-ghost" onclick="scanAndAlert()">📱 Scan + WhatsApp Alert</button>
-    <button class="btn btn-ghost" onclick="testWhatsApp()">🧪 Test WhatsApp</button>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('meta')">📊 Meta Ads</button>
+    <button class="tab" onclick="switchTab('poly')">🎯 Polymarket Arb</button>
   </div>
 
-  <div class="grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Ads Scanned</div>
-      <div class="stat-val" id="total-ads">—</div>
+  <!-- META ADS TAB -->
+  <div id="tab-meta" class="tab-content active">
+    <div class="actions-row">
+      <button class="btn btn-primary" onclick="scan()">🔍 Scan Now</button>
+      <button class="btn btn-ghost" onclick="scanAndAlert()">📱 Scan + WhatsApp Alert</button>
+      <button class="btn btn-ghost" onclick="testWhatsApp()">🧪 Test WhatsApp</button>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Red Alerts</div>
-      <div class="stat-val red" id="red-count">—</div>
+
+    <div class="grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Ads Scanned</div>
+        <div class="stat-val" id="total-ads">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Red Alerts</div>
+        <div class="stat-val red" id="red-count">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Yellow Alerts</div>
+        <div class="stat-val yellow" id="yellow-count">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scale Opportunities</div>
+        <div class="stat-val green" id="green-count">—</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Yellow Alerts</div>
-      <div class="stat-val yellow" id="yellow-count">—</div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🔴 Red Alerts — Cut These</span>
+        <span class="last-scan" id="last-scan">Not scanned yet</span>
+      </div>
+      <div id="red-list"><div class="empty">Run a scan to see alerts</div></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Scale Opportunities</div>
-      <div class="stat-val green" id="green-count">—</div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🟢 Scale Opportunities</span>
+      </div>
+      <div id="green-list"><div class="empty">Run a scan to see winners</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🟡 Yellow — Watch These</span>
+      </div>
+      <div id="yellow-list"><div class="empty">Run a scan to see yellow alerts</div></div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🔴 Red Alerts — Cut These</span>
-      <span class="last-scan" id="last-scan">Not scanned yet</span>
+  <!-- POLYMARKET TAB -->
+  <div id="tab-poly" class="tab-content">
+    <div class="actions-row">
+      <button class="btn btn-poly" onclick="polyScan()">🎯 Scan Polymarket</button>
+      <button class="btn btn-ghost" onclick="polyScanAlert()">📱 Scan + Alert</button>
+      <button class="btn btn-ghost" onclick="polyLoadCache()">🔄 Load Cached Results</button>
     </div>
-    <div id="red-list"><div class="empty">Run a scan to see alerts</div></div>
-  </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🟢 Scale Opportunities</span>
+    <div id="poly-progress" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">
+        <span class="spinner"></span><span id="poly-progress-text">Scanning markets…</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="poly-progress-fill" style="width:0%"></div></div>
     </div>
-    <div id="green-list"><div class="empty">Run a scan to see winners</div></div>
-  </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🟡 Yellow — Watch These</span>
+    <div class="grid">
+      <div class="stat-card">
+        <div class="stat-label">Markets Scanned</div>
+        <div class="stat-val poly" id="poly-scanned">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">High Opportunities</div>
+        <div class="stat-val red" id="poly-high">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Medium Opportunities</div>
+        <div class="stat-val yellow" id="poly-medium">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Low Opportunities</div>
+        <div class="stat-val green" id="poly-low">—</div>
+      </div>
     </div>
-    <div id="yellow-list"><div class="empty">Run a scan to see yellow alerts</div></div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🔥 High Arbitrage Opportunities (>3% profit)</span>
+        <span class="last-scan" id="poly-last-scan">Not scanned yet</span>
+      </div>
+      <div id="poly-high-list"><div class="empty">Run a scan to find arbitrage opportunities</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">⚡ Medium Opportunities (1–3% profit)</span>
+      </div>
+      <div id="poly-medium-list"><div class="empty">Run a scan to find arbitrage opportunities</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">💡 Low Opportunities (&lt;1% profit)</span>
+      </div>
+      <div id="poly-low-list"><div class="empty">Run a scan to find arbitrage opportunities</div></div>
+    </div>
+
+    <div class="section" style="border-color:rgba(108,71,255,0.3)">
+      <div class="section-header">
+        <span class="section-title" style="color:#a78bfa">ℹ️ How Binary Arbitrage Works</span>
+      </div>
+      <div style="padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.7">
+        <p>On Polymarket, each binary market has YES and NO tokens. One always resolves to $1.00 and the other to $0.</p>
+        <br>
+        <p><strong style="color:var(--text)">The opportunity:</strong> If <code>ask(YES) + ask(NO) &lt; $1.00</code>, you can buy both tokens for less than $1 and always collect exactly $1 at resolution — guaranteed profit.</p>
+        <br>
+        <p><strong style="color:var(--text)">Example:</strong> YES ask = $0.44, NO ask = $0.52. Total cost = $0.96. Guaranteed payout = $1.00. Gross profit = $0.04 (4%) minus ~2% fees = ~2% net.</p>
+        <br>
+        <p><strong style="color:var(--text)">Risk:</strong> You must hold until market resolution. Liquidity may be thin. Always check the market URL before trading.</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
+// ── Tabs ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ── Meta Ads ──────────────────────────────────────────────────────────
 async function scan() {
   document.getElementById('status-text').textContent = 'Scanning…';
-  toast('Scanning your Meta account…');
+  toast('Scanning Meta account…');
   try {
     const res = await fetch('/api/scan');
     const data = await res.json();
     renderResults(data);
-    document.getElementById('status-text').textContent = 'Live · act_2091379461674287';
+    document.getElementById('status-text').textContent = 'Live';
     document.getElementById('last-scan').textContent = 'Last scan: ' + new Date().toLocaleTimeString();
   } catch(e) {
     toast('Error: ' + e.message);
-    document.getElementById('status-text').textContent = 'Error — retry';
+    document.getElementById('status-text').textContent = 'Error';
   }
 }
 
@@ -142,7 +253,7 @@ async function scanAndAlert() {
   const res = await fetch('/api/scan-and-alert', { method: 'POST' });
   const data = await res.json();
   renderResults(data);
-  toast('✅ WhatsApp alert sent to +254724485173');
+  toast('✅ WhatsApp alert sent');
 }
 
 async function testWhatsApp() {
@@ -150,20 +261,20 @@ async function testWhatsApp() {
   await fetch('/api/send-whatsapp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: '✅ Meta Ads Agent test message — connected and running!' })
+    body: JSON.stringify({ message: '✅ Agent test message — connected!' })
   });
-  toast('✅ Test sent to +254724485173');
+  toast('✅ Test sent');
 }
 
 async function pauseAd(adId, adName) {
-  if (!confirm(`Pause ad: ${adName}?`)) return;
+  if (!confirm('Pause ad: ' + adName + '?')) return;
   const res = await fetch('/api/pause-ad', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ adId })
   });
   const data = await res.json();
-  toast(data.success ? `✂️ Paused: ${adName}` : 'Error pausing ad');
+  toast(data.success ? '✂️ Paused: ' + adName : 'Error pausing ad');
   setTimeout(scan, 1000);
 }
 
@@ -172,13 +283,12 @@ function renderResults(data) {
   document.getElementById('red-count').textContent = data.redAlerts?.length || 0;
   document.getElementById('yellow-count').textContent = data.yellowAlerts?.length || 0;
   document.getElementById('green-count').textContent = data.greenAlerts?.length || 0;
-
-  renderList('red-list', data.redAlerts || [], 'red');
-  renderList('green-list', data.greenAlerts || [], 'green');
-  renderList('yellow-list', data.yellowAlerts || [], 'yellow');
+  renderMetaList('red-list', data.redAlerts || [], 'red');
+  renderMetaList('green-list', data.greenAlerts || [], 'green');
+  renderMetaList('yellow-list', data.yellowAlerts || [], 'yellow');
 }
 
-function renderList(elId, items, type) {
+function renderMetaList(elId, items, type) {
   const el = document.getElementById(elId);
   if (!items.length) { el.innerHTML = '<div class="empty">None</div>'; return; }
   el.innerHTML = items.map(item => `
@@ -196,13 +306,131 @@ function renderList(elId, items, type) {
   `).join('');
 }
 
-// Check health on load
+// ── Polymarket ────────────────────────────────────────────────────────
+let polyScanRunning = false;
+
+async function polyScan() {
+  if (polyScanRunning) { toast('Scan already in progress…'); return; }
+  polyScanRunning = true;
+  document.getElementById('poly-progress').style.display = 'block';
+  document.getElementById('poly-progress-text').textContent = 'Fetching markets…';
+  document.getElementById('poly-progress-fill').style.width = '5%';
+  toast('Scanning Polymarket… this takes ~30s');
+
+  try {
+    // Animate progress while waiting
+    let fakeProgress = 5;
+    const progressInterval = setInterval(() => {
+      fakeProgress = Math.min(fakeProgress + 2, 90);
+      document.getElementById('poly-progress-fill').style.width = fakeProgress + '%';
+      document.getElementById('poly-progress-text').textContent = `Scanning markets… (${fakeProgress}%)`;
+    }, 1000);
+
+    const res = await fetch('/api/polymarket/scan?limit=200');
+    clearInterval(progressInterval);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderPolyResults(data);
+    document.getElementById('poly-progress-fill').style.width = '100%';
+    setTimeout(() => { document.getElementById('poly-progress').style.display = 'none'; }, 500);
+    toast(`✅ Scan complete — ${data.opportunities?.length || 0} opportunities found`);
+  } catch(e) {
+    toast('Error: ' + e.message);
+    document.getElementById('poly-progress').style.display = 'none';
+  }
+  polyScanRunning = false;
+}
+
+async function polyScanAlert() {
+  toast('Scanning + sending WhatsApp alert…');
+  try {
+    const res = await fetch('/api/polymarket/scan-and-alert', { method: 'POST', headers: {'Content-Type':'application/json'} });
+    const data = await res.json();
+    renderPolyResults(data);
+    toast('✅ Scan + WhatsApp alert sent');
+  } catch(e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+async function polyLoadCache() {
+  try {
+    const res = await fetch('/api/polymarket/cache');
+    if (!res.ok) { toast('No cached results. Run a scan first.'); return; }
+    const data = await res.json();
+    renderPolyResults(data);
+    toast('Loaded cached results from ' + new Date(data.cachedAt).toLocaleTimeString());
+  } catch(e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+function renderPolyResults(data) {
+  document.getElementById('poly-scanned').textContent = data.scanned || 0;
+  document.getElementById('poly-high').textContent = data.highCount || 0;
+  document.getElementById('poly-medium').textContent = data.mediumCount || 0;
+  document.getElementById('poly-low').textContent = data.lowCount || 0;
+  document.getElementById('poly-last-scan').textContent = 'Last scan: ' + new Date(data.timestamp).toLocaleTimeString();
+
+  const opps = data.opportunities || [];
+  renderPolyList('poly-high-list', opps.filter(o => o.severity === 'HIGH'));
+  renderPolyList('poly-medium-list', opps.filter(o => o.severity === 'MEDIUM'));
+  renderPolyList('poly-low-list', opps.filter(o => o.severity === 'LOW'));
+}
+
+function renderPolyList(elId, opps) {
+  const el = document.getElementById(elId);
+  if (!opps.length) { el.innerHTML = '<div class="empty">None found</div>'; return; }
+  el.innerHTML = opps.map(opp => {
+    const severityClass = { HIGH: 'high', MEDIUM: 'medium', LOW: 'low' }[opp.severity] || 'low';
+    if (opp.type === 'BINARY') {
+      return `
+        <div class="arb-opportunity">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+            <div class="arb-question">${opp.question}</div>
+            <span class="badge badge-${severityClass}" style="flex-shrink:0">${opp.severity}</span>
+          </div>
+          <div class="arb-metrics">
+            <div class="arb-metric">YES ask: <span>$${opp.yesAsk.toFixed(3)}</span></div>
+            <div class="arb-metric">NO ask: <span>$${opp.noAsk.toFixed(3)}</span></div>
+            <div class="arb-metric">Total cost: <span>$${opp.totalCost.toFixed(3)}</span></div>
+            <div class="arb-metric">Net profit: <span style="color:var(--green)">${opp.netProfitPct}%</span></div>
+            <div class="arb-metric">Max shares: <span>${opp.maxShares}</span></div>
+            <div class="arb-metric">Max profit: <span style="color:var(--green)">$${opp.maxNetProfit}</span></div>
+          </div>
+          <a class="arb-link" href="${opp.url}" target="_blank" rel="noopener">↗ Open on Polymarket</a>
+        </div>`;
+    }
+    if (opp.type === 'MULTI_OUTCOME') {
+      return `
+        <div class="arb-opportunity">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+            <div class="arb-question">${opp.question}</div>
+            <span class="badge badge-${severityClass}" style="flex-shrink:0">MULTI</span>
+          </div>
+          <div class="arb-metrics">
+            <div class="arb-metric">Price sum: <span>$${opp.totalMidSum}</span></div>
+            <div class="arb-metric">Gap: <span>${opp.gap}</span></div>
+            <div class="arb-metric">Net profit: <span style="color:var(--green)">${opp.netProfitPct}%</span></div>
+          </div>
+          <a class="arb-link" href="${opp.url}" target="_blank" rel="noopener">↗ Open on Polymarket</a>
+        </div>`;
+    }
+    return '';
+  }).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
 fetch('/api/health').then(r => r.json()).then(d => {
-  document.getElementById('status-text').textContent = 'Live · ' + d.account;
+  document.getElementById('status-text').textContent = 'Live · ' + (d.account || 'running');
   scan();
 }).catch(() => {
   document.getElementById('status-text').textContent = 'Offline';
 });
+
+// Try loading cached poly results on page load
+polyLoadCache().catch(() => {});
 </script>
 </body>
 </html>
