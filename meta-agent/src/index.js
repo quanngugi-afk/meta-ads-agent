@@ -12,7 +12,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+let twilioClient = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
 
 const META_TOKEN = process.env.META_ACCESS_TOKEN;
 const AD_ACCOUNT = process.env.META_AD_ACCOUNT_ID;
@@ -65,6 +68,7 @@ async function pauseAd(adId) {
 }
 
 async function sendWhatsApp(message) {
+  if (!twilioClient) { console.log('[WA SKIP] Twilio not configured'); return; }
   try {
     await twilioClient.messages.create({ from: WA_FROM, to: WA_TO, body: message });
     console.log(`[WA SENT] ${new Date().toISOString()}`);
@@ -221,5 +225,5 @@ app.listen(PORT, () => {
   console.log(`📊 Meta Ads Account: ${AD_ACCOUNT}`);
   console.log(`📱 WhatsApp alerts → ${WA_TO}`);
   console.log(`⏰ Meta: scanning every hour | Polymarket: every 15 min`);
-  sendWhatsApp(`🚀 Meta Ads Agent LIVE\n\nAccount: ${AD_ACCOUNT}\nScanning every hour\nDaily summary at 8am Nairobi\n\nType scan to check your ads now.`);
+  if (twilioClient) sendWhatsApp(`🚀 Meta Ads Agent LIVE\n\nAccount: ${AD_ACCOUNT}\nScanning every hour\nDaily summary at 8am Nairobi\n\nType scan to check your ads now.`);
 });
