@@ -4,13 +4,18 @@ const cron = require('node-cron');
 const fetch = require('node-fetch');
 const twilio = require('twilio');
 const path = require('path');
+const { createRouter: createPolymarketRouter, runScan: runPolymarketScan } = require('./polymarket/routes');
+const { buildScanReport, buildHighAlertMessage } = require('./polymarket/alerts');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+let twilioClient = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
 
 const META_TOKEN = process.env.META_ACCESS_TOKEN;
 const AD_ACCOUNT = process.env.META_AD_ACCOUNT_ID;
@@ -63,6 +68,7 @@ async function pauseAd(adId) {
 }
 
 async function sendWhatsApp(message) {
+  if (!twilioClient) { console.log('[WA SKIP] Twilio not configured'); return; }
   try {
     await twilioClient.messages.create({ from: WA_FROM, to: WA_TO, body: message });
     console.log(`[WA SENT] ${new Date().toISOString()}`);
@@ -135,6 +141,32 @@ async function sendDailySummary() {
 cron.schedule('0 * * * *', () => runAnalysis(true));
 cron.schedule('0 5 * * *', () => sendDailySummary());
 
+// Polymarket: scan every 15 minutes and alert on HIGH opportunities
+cron.schedule('*/15 * * * *', async () => {
+  try {
+    const results = await runPolymarketScan({ maxMarkets: 200, sendAlert: true, alertFn: sendWhatsApp });
+    const highOpps = results.opportunities?.filter(o => o.severity === 'HIGH') || [];
+    if (highOpps.length > 0) {
+      await sendWhatsApp(buildHighAlertMessage(highOpps));
+    }
+  } catch (e) {
+    console.error('[POLYMARKET CRON ERROR]', e.message);
+  }
+});
+
+// Polymarket: send full report once a day at 7am Nairobi
+cron.schedule('0 7 * * *', async () => {
+  try {
+    const results = await runPolymarketScan({ maxMarkets: 200 });
+    await sendWhatsApp(buildScanReport(results));
+  } catch (e) {
+    console.error('[POLYMARKET DAILY ERROR]', e.message);
+  }
+});
+
+// Polymarket routes
+app.use('/api/polymarket', createPolymarketRouter(sendWhatsApp));
+
 app.get('/api/scan', async (req, res) => { const results = await runAnalysis(false); res.json(results); });
 app.post('/api/scan-and-alert', async (req, res) => { const results = await runAnalysis(true); res.json(results); });
 app.post('/api/pause-ad', async (req, res) => { const { adId } = req.body; if (!adId) return res.status(400).json({ error: 'adId required' }); const result = await pauseAd(adId); await sendWhatsApp(`✂️ Ad paused: ${adId}`); res.json(result); });
@@ -170,10 +202,17 @@ app.post('/api/whatsapp-inbound', async (req, res) => {
       for (const item of results.greenAlerts.slice(0, 5)) { reply += `• ${item.adName} — ${item.alert.metric}: ${item.alert.value}\n`; }
       reply += `\nReply APPROVE SCALE to boost 20%.`;
     } else { reply = `No scale opportunities right now.`; }
+  } else if (msg.includes('poly') || msg.includes('polymarket') || msg.includes('arbitrage') || msg.includes('arb')) {
+    reply = `🎯 Scanning Polymarket for arbitrage...\n\nThis takes ~30s. Results will be sent separately.`;
+    // Run async and send results as follow-up
+    runPolymarketScan({ maxMarkets: 100 }).then(results => {
+      const report = buildScanReport(results);
+      sendWhatsApp(report);
+    }).catch(e => sendWhatsApp(`❌ Polymarket scan error: ${e.message}`));
   } else if (msg.includes('help') || msg === '?') {
-    reply = `🤖 Meta Ads Agent\n\n• scan — check all ads\n• cut — find underperformers\n• scale — find winners\n• APPROVE CUTS — pause red ads\n• APPROVE SCALE — boost winners 20%\n• summary — daily report`;
+    reply = `🤖 Agent Commands\n\n*Meta Ads:*\n• scan — check all ads\n• cut — find underperformers\n• scale — find winners\n• APPROVE CUTS — pause red ads\n• APPROVE SCALE — boost winners 20%\n• summary — daily report\n\n*Polymarket:*\n• poly / arb — scan for arbitrage\n• Scans run every 15min automatically`;
   } else {
-    reply = `🤖 Meta Ads Agent here.\n\nType scan to check your ads, or help for all commands.`;
+    reply = `🤖 Agent here.\n\nType scan for Meta Ads, poly for Polymarket arbitrage, or help for all commands.`;
   }
 
   res.set('Content-Type', 'text/xml');
@@ -182,9 +221,9 @@ app.post('/api/whatsapp-inbound', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🤖 Meta Ads Agent running on port ${PORT}`);
-  console.log(`📊 Account: ${AD_ACCOUNT}`);
+  console.log(`🤖 Meta Ads Agent + Polymarket Scanner running on port ${PORT}`);
+  console.log(`📊 Meta Ads Account: ${AD_ACCOUNT}`);
   console.log(`📱 WhatsApp alerts → ${WA_TO}`);
-  console.log(`⏰ Scanning every hour + daily summary at 8am Nairobi`);
-  sendWhatsApp(`🚀 Meta Ads Agent LIVE\n\nAccount: ${AD_ACCOUNT}\nScanning every hour\nDaily summary at 8am Nairobi\n\nType scan to check your ads now.`);
+  console.log(`⏰ Meta: scanning every hour | Polymarket: every 15 min`);
+  if (twilioClient) sendWhatsApp(`🚀 Meta Ads Agent LIVE\n\nAccount: ${AD_ACCOUNT}\nScanning every hour\nDaily summary at 8am Nairobi\n\nType scan to check your ads now.`);
 });

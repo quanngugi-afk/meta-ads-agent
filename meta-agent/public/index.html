@@ -3,206 +3,1113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta Ads Agent — Dashboard</title>
+<title>ArbiScan — Polymarket Arbitrage + Meta Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;
-    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
-    --accent:#e8580c;--text:#f0ede8;--muted:#888;
-    --green:#4ade80;--yellow:#fbbf24;--red:#f87171;
-  }
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
-  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
-  .logo-dot{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
-  .status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:var(--surface2);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .container{max-width:1100px;margin:0 auto;padding:24px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
-  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-  .stat-val{font-size:26px;font-weight:600;font-family:'Syne',sans-serif}
-  .stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}
-  .section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
-  .section-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-  .section-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
-  .alert-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  .alert-item:last-child{border-bottom:none}
-  .alert-name{font-size:13px;font-weight:500;margin-bottom:3px}
-  .alert-meta{font-size:12px;color:var(--muted)}
-  .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em;flex-shrink:0;white-space:nowrap}
-  .badge-red{background:rgba(248,113,113,.15);color:var(--red)}
-  .badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
-  .badge-green{background:rgba(74,222,128,.15);color:var(--green)}
-  .btn{padding:8px 16px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
-  .btn-primary{background:var(--accent);color:#fff}
-  .btn-primary:hover{opacity:.85}
-  .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted)}
-  .btn-ghost:hover{color:var(--text);border-color:var(--border2)}
-  .btn-red{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
-  .btn-green{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3)}
-  .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-  .empty{padding:32px;text-align:center;color:var(--muted);font-size:13px}
-  .last-scan{font-size:12px;color:var(--muted)}
-  #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px}
-  #toast.show{opacity:1}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{background:#080812;color:#e8e6f0;font-family:'Inter',sans-serif;min-height:100vh;display:flex;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+
+:root{
+  --bg:#080812;--s1:#10101e;--s2:#18182e;--s3:#20203a;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
+  --poly:#7c5cfc;--poly-d:rgba(124,92,252,0.12);
+  --meta:#f05a28;--meta-d:rgba(240,90,40,0.12);
+  --text:#e8e6f0;--muted:#7a7891;--muted2:#52505f;
+  --green:#3ddc84;--green-d:rgba(61,220,132,0.12);
+  --yellow:#ffc554;--yellow-d:rgba(255,197,84,0.12);
+  --red:#ff6b6b;--red-d:rgba(255,107,107,0.12);
+  --r:10px;--rs:6px;--sb:220px;
+}
+
+/* Layout */
+.sidebar{width:var(--sb);flex-shrink:0;position:fixed;inset:0 auto 0 0;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:50}
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(8,8,18,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;z-index:40}
+.content{flex:1;padding:28px 28px 56px;max-width:1200px}
+
+/* Sidebar */
+.sb-logo{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd)}
+.sb-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--poly),#b084fc);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.sb-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.02em}
+.sb-sub{font-size:10px;color:var(--muted)}
+.sb-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:1px}
+.sb-section{font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;padding:12px 10px 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rs);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:all .15s}
+.sb-item:hover{color:var(--text);background:var(--s2)}
+.sb-item.active{color:var(--text);background:var(--s3)}
+.sb-item .ic{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-item .lbl{flex:1}
+.sb-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;background:var(--poly-d);color:var(--poly);letter-spacing:.04em}
+.sb-badge-meta{background:var(--meta-d)!important;color:var(--meta)!important}
+.sb-badge-red{background:var(--red-d)!important;color:var(--red)!important}
+.sb-footer{padding:12px;border-top:1px solid var(--bd)}
+.sb-status{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:var(--rs);padding:10px 12px;border:1px solid var(--bd)}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 2px rgba(61,220,132,.2);animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{box-shadow:0 0 0 2px rgba(61,220,132,.2)}50%{box-shadow:0 0 0 5px rgba(61,220,132,.06)}}
+.sb-status-info{font-size:11px;color:var(--muted);line-height:1.35}
+.sb-status-info strong{color:var(--text);display:block;font-size:12px}
+
+/* Topbar */
+.tb-crumb{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tb-crumb strong{color:var(--text);font-weight:600}
+.tb-crumb span{color:var(--muted2)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-auto{display:none;align-items:center;gap:6px;font-size:11px;color:var(--muted);background:var(--s2);border:1px solid var(--bd);border-radius:99px;padding:5px 11px}
+.tb-auto.on{display:flex}
+.tb-auto-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pdot 2s infinite}
+.hamburger{display:none;background:var(--s2);border:1px solid var(--bd);color:var(--muted);border-radius:var(--rs);padding:7px 9px;font-size:14px;cursor:pointer}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--rs);font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-primary{background:var(--poly);color:#fff}.btn-primary:hover{background:#6a4ae0}
+.btn-meta{background:var(--meta);color:#fff}.btn-meta:hover{background:#d44d22}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--bd2)}.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-icon{padding:7px;background:var(--s2);border:1px solid var(--bd);color:var(--muted);border-radius:var(--rs)}.btn-icon:hover{color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.card-header{padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;display:flex;align-items:center;gap:7px}
+.card-empty{padding:36px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7}
+.card-empty .ei{font-size:26px;margin-bottom:8px}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc-poly::before{background:linear-gradient(90deg,var(--poly),#b084fc)}
+.sc-green::before{background:linear-gradient(90deg,var(--green),#7df5b3)}
+.sc-yellow::before{background:linear-gradient(90deg,var(--yellow),#ffe59c)}
+.sc-red::before{background:linear-gradient(90deg,var(--red),#ffb3b3)}
+.sc-meta::before{background:linear-gradient(90deg,var(--meta),#ff9b6e)}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:700;font-family:'Space Grotesk',sans-serif;line-height:1}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.sv-poly{color:var(--poly)}.sv-green{color:var(--green)}.sv-yellow{color:var(--yellow)}.sv-red{color:var(--red)}.sv-meta{color:var(--meta)}
+
+/* Badges */
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.b-high{background:var(--red-d);color:var(--red)}
+.b-medium{background:var(--yellow-d);color:var(--yellow)}
+.b-low{background:var(--green-d);color:var(--green)}
+.b-binary{background:rgba(255,255,255,.07);color:var(--muted)}
+.b-multi{background:var(--poly-d);color:var(--poly)}
+.b-red{background:var(--red-d);color:var(--red)}
+.b-yellow{background:var(--yellow-d);color:var(--yellow)}
+.b-green{background:var(--green-d);color:var(--green)}
+
+/* Opp cards */
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.opp-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s;display:flex;flex-direction:column}
+.opp-card:hover{border-color:var(--bd2);transform:translateY(-1px)}
+.opp-card.sv-HIGH{border-left:3px solid var(--red)}
+.opp-card.sv-MEDIUM{border-left:3px solid var(--yellow)}
+.opp-card.sv-LOW{border-left:3px solid var(--green)}
+.opp-head{padding:14px 16px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.opp-q{font-size:13px;font-weight:500;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.opp-metrics{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--bd);flex:1}
+.opp-m{padding:9px 14px;border-right:1px solid var(--bd)}
+.opp-m:nth-child(even){border-right:none}
+.opp-ml{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.opp-mv{font-size:13px;font-weight:600}
+.opp-mv-profit{color:var(--green)}
+.opp-foot{padding:9px 14px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* Filters */
+.filter-tabs{display:flex;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rs);padding:3px;width:fit-content}
+.ftab{padding:5px 12px;border-radius:4px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:all .15s}
+.ftab.active{background:var(--s3);color:var(--text)}
+.ftab:hover:not(.active){color:var(--text)}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.toolbar-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar-r{display:flex;align-items:center;gap:8px}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+.td-q{max-width:280px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-profit{color:var(--green);font-weight:600;font-family:'Space Grotesk',sans-serif}
+.td-muted{color:var(--muted)}
+.td-actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:14px;width:100%;max-width:540px;max-height:85vh;overflow-y:auto;padding:28px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--s2);border:1px solid var(--bd);color:var(--muted);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
+.modal-x:hover{color:var(--text)}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;padding-right:32px;line-height:1.3}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.modal-sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.modal-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.modal-m{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}
+.modal-ml{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.modal-mv{font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif}
+.modal-mv.profit{color:var(--green)}
+.calc{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px;font-size:13px;line-height:1.9;margin-bottom:16px}
+.calc-row{display:flex;justify-content:space-between;align-items:center}
+.calc-row.total{border-top:1px solid var(--bd);margin-top:4px;padding-top:8px;font-weight:600}
+.calc-row.profit-row{color:var(--green)}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Progress */
+.progress{height:3px;background:var(--s3);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--poly),#b084fc);border-radius:99px;transition:width .6s ease}
+.scan-status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--poly);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toggle */
+.toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none}
+.toggle-sw{width:32px;height:18px;border-radius:9px;background:var(--s3);position:relative;transition:background .2s;flex-shrink:0}
+.toggle-sw.on{background:var(--poly)}
+.toggle-th{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s}
+.toggle-sw.on .toggle-th{left:17px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,rgba(124,92,252,.08),transparent 65%);border:1px solid var(--bd);border-radius:14px;padding:36px 40px;margin-bottom:24px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-80px;right:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,252,.12),transparent 70%);pointer-events:none}
+.hero-label{font-size:11px;font-weight:600;color:var(--poly);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.hero-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--poly)}
+.hero-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px;line-height:1.25}
+.hero-desc{font-size:14px;color:var(--muted);line-height:1.7;max-width:580px;margin-bottom:24px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Page header */
+.ph{margin-bottom:22px}
+.ph-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.ph-sub{font-size:13px;color:var(--muted)}
+
+/* Status row */
+.sys-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:22px}
+.sys-item{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.sys-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.si-poly{background:var(--poly-d)}.si-meta{background:var(--meta-d)}.si-wa{background:rgba(37,211,102,.12)}
+.sys-text{font-size:12px;color:var(--muted)}
+.sys-text strong{color:var(--text);display:block;font-size:13px;font-weight:500}
+
+/* History */
+.hist-item{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--bd);font-size:12px}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:6px;height:6px;border-radius:50%;background:var(--poly);flex-shrink:0}
+.hist-time{color:var(--muted);width:88px;flex-shrink:0}
+.hist-stats{display:flex;gap:10px;flex:1;flex-wrap:wrap}
+.hist-stats span{color:var(--muted)}.hist-stats strong{color:var(--text)}
+
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+
+/* Alert banner */
+.alert-info{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:var(--rs);font-size:13px;margin-bottom:20px;background:var(--poly-d);border:1px solid rgba(124,92,252,.3);color:#b084fc}
+
+/* Guide */
+.guide-sec{margin-bottom:30px}
+.guide-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px}
+.guide-text{font-size:13px;color:var(--muted);line-height:1.75}
+.guide-text p{margin-bottom:10px}
+.guide-example{background:var(--s2);border-left:3px solid var(--poly);border-radius:0 var(--r) var(--r) 0;padding:16px 18px;margin:14px 0}
+.guide-et{font-size:10px;font-weight:700;color:var(--poly);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.guide-step{display:flex;gap:13px;margin-bottom:18px}
+.guide-num{width:24px;height:24px;border-radius:50%;background:var(--poly-d);color:var(--poly);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.guide-sc{font-size:13px;color:var(--muted);line-height:1.65}
+.guide-sc strong{color:var(--text)}
+.guide-box{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;margin:14px 0;font-size:13px;color:var(--muted);line-height:1.75}
+.guide-box strong{color:var(--text)}
+.faq-item{border-top:1px solid var(--bd);padding:14px 0}
+.faq-q{font-size:13px;font-weight:500;margin-bottom:7px}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* Toast */
+#toast{position:fixed;bottom:22px;right:22px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:11px 15px;font-size:13px;color:var(--text);opacity:0;transition:opacity .25s;pointer-events:none;z-index:999;max-width:290px;display:flex;align-items:flex-start;gap:8px}
+#toast.show{opacity:1}
+
+/* Views */
+.view{display:none}
+.view.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* Skeleton */
+.skel{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200%;animation:skelwave 1.5s infinite;border-radius:4px}
+@keyframes skelwave{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Inline util */
+.gap-8{gap:8px}.gap-10{gap:10px}
+.c-muted{color:var(--muted)}
+.fw-600{font-weight:600}
+code{font-family:'Space Grotesk',monospace;font-size:12px;color:var(--poly);background:var(--s3);padding:1px 6px;border-radius:4px}
+
+/* Responsive */
+@media(max-width:900px){
+  .two-col{grid-template-columns:1fr}
+  .opp-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .content{padding:16px}
+  .hero{padding:22px 20px}
+  .hero-title{font-size:20px}
+  .hamburger{display:flex!important}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">
-    <div class="logo-dot">M</div>
-    Meta Ads Agent
-  </div>
-  <div class="status">
-    <div class="dot"></div>
-    <span id="status-text">Connecting…</span>
-  </div>
-</header>
 
-<div class="container">
-  <div class="actions-row">
-    <button class="btn btn-primary" onclick="scan()">🔍 Scan Now</button>
-    <button class="btn btn-ghost" onclick="scanAndAlert()">📱 Scan + WhatsApp Alert</button>
-    <button class="btn btn-ghost" onclick="testWhatsApp()">🧪 Test WhatsApp</button>
-  </div>
-
-  <div class="grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Ads Scanned</div>
-      <div class="stat-val" id="total-ads">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Red Alerts</div>
-      <div class="stat-val red" id="red-count">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Yellow Alerts</div>
-      <div class="stat-val yellow" id="yellow-count">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Scale Opportunities</div>
-      <div class="stat-val green" id="green-count">—</div>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">A</div>
+    <div>
+      <div class="sb-name">ArbiScan</div>
+      <div class="sb-sub">Trading Intelligence</div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🔴 Red Alerts — Cut These</span>
-      <span class="last-scan" id="last-scan">Not scanned yet</span>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <button class="sb-item active" id="nav-dashboard" onclick="nav('dashboard')">
+      <span class="ic">📊</span><span class="lbl">Dashboard</span>
+    </button>
+
+    <div class="sb-section">Polymarket</div>
+    <button class="sb-item" id="nav-scanner" onclick="nav('scanner')">
+      <span class="ic">🎯</span><span class="lbl">Arb Scanner</span>
+      <span class="sb-badge" id="sb-poly-badge" style="display:none">0</span>
+    </button>
+    <button class="sb-item" id="nav-guide" onclick="nav('guide')">
+      <span class="ic">📖</span><span class="lbl">How It Works</span>
+    </button>
+
+    <div class="sb-section">Meta Ads</div>
+    <button class="sb-item" id="nav-meta" onclick="nav('meta')">
+      <span class="ic">📈</span><span class="lbl">Ads Monitor</span>
+      <span class="sb-badge sb-badge-red" id="sb-meta-badge" style="display:none">0</span>
+    </button>
+
+    <div class="sb-section">System</div>
+    <button class="sb-item" id="nav-alerts" onclick="nav('alerts')">
+      <span class="ic">📱</span><span class="lbl">Alerts &amp; Setup</span>
+    </button>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="sb-status">
+      <div class="sb-dot" id="sb-dot"></div>
+      <div class="sb-status-info">
+        <strong id="sb-status">Connecting…</strong>
+        <span id="sb-last">Starting up…</span>
+      </div>
     </div>
-    <div id="red-list"><div class="empty">Run a scan to see alerts</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div class="tb-crumb">
+        <span>ArbiScan</span><span>›</span><strong id="tb-page">Dashboard</strong>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-auto" id="auto-indicator">
+        <div class="tb-auto-dot"></div>
+        <span id="auto-countdown">5:00</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="quickScan()">🔍 Quick Scan</button>
+    </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🟢 Scale Opportunities</span>
-    </div>
-    <div id="green-list"><div class="empty">Run a scan to see winners</div></div>
-  </div>
+  <div class="content">
 
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">🟡 Yellow — Watch These</span>
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="hero">
+        <div class="hero-label">Live Arbitrage Intelligence</div>
+        <div class="hero-title">Find guaranteed profit on<br>Polymarket, automatically.</div>
+        <div class="hero-desc">ArbiScan monitors hundreds of prediction markets in real time — detecting when YES&nbsp;+&nbsp;NO ask prices fall below $1.00, creating a risk-free arbitrage window.</div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="nav('scanner');polyScan()">🎯 Scan for Arbitrage</button>
+          <button class="btn btn-ghost" onclick="nav('guide')">Learn how it works →</button>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card sc-poly">
+          <div class="stat-label">Markets Scanned</div>
+          <div class="stat-val sv-poly" id="d-scanned">—</div>
+          <div class="stat-sub" id="d-scan-ts">Run a scan to start</div>
+        </div>
+        <div class="stat-card sc-red">
+          <div class="stat-label">High Opportunities</div>
+          <div class="stat-val sv-red" id="d-high">—</div>
+          <div class="stat-sub">Profit &gt;3% net</div>
+        </div>
+        <div class="stat-card sc-yellow">
+          <div class="stat-label">Medium Opportunities</div>
+          <div class="stat-val sv-yellow" id="d-med">—</div>
+          <div class="stat-sub">Profit 1–3% net</div>
+        </div>
+        <div class="stat-card sc-green">
+          <div class="stat-label">Best Profit Found</div>
+          <div class="stat-val sv-green" id="d-best">—</div>
+          <div class="stat-sub" id="d-best-q">Net after fees</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">⚡ System Status</span></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:8px">
+            <div class="sys-item">
+              <div class="sys-icon si-poly">🎯</div>
+              <div><div class="sys-text"><strong>Polymarket Scanner</strong></div><div class="sys-text" id="sys-poly">Idle — run a scan</div></div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-icon si-meta">📈</div>
+              <div><div class="sys-text"><strong>Meta Ads Monitor</strong></div><div class="sys-text" id="sys-meta">Scanning hourly</div></div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-icon si-wa">📱</div>
+              <div><div class="sys-text"><strong>WhatsApp Alerts</strong></div><div class="sys-text" id="sys-wa">Active via Twilio</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🕐 Scan History</span>
+            <button class="btn btn-ghost btn-sm" onclick="clearHist()">Clear</button>
+          </div>
+          <div id="hist-list"><div class="card-empty">No history yet</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔥 Top Opportunities</span>
+          <button class="btn btn-ghost btn-sm" onclick="nav('scanner')">View all →</button>
+        </div>
+        <div id="d-top">
+          <div class="card-empty">
+            <div class="ei">🎯</div>
+            No scan data yet.
+            <br><br>
+            <button class="btn btn-primary btn-sm" onclick="nav('scanner');polyScan()">Start Scanning</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="yellow-list"><div class="empty">Run a scan to see yellow alerts</div></div>
+
+    <!-- SCANNER -->
+    <div class="view" id="view-scanner">
+      <div class="ph">
+        <div class="ph-title">🎯 Polymarket Arbitrage Scanner</div>
+        <div class="ph-sub">Detects binary and multi-outcome markets where buying all sides guarantees profit after fees</div>
+      </div>
+
+      <div id="prog-area" style="display:none">
+        <div class="scan-status"><div class="spinner"></div><span id="prog-text">Scanning…</span></div>
+        <div class="progress"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-l">
+          <div class="filter-tabs" id="sev-tabs">
+            <button class="ftab active" data-sev="ALL">All</button>
+            <button class="ftab" data-sev="HIGH">🔥 High</button>
+            <button class="ftab" data-sev="MEDIUM">⚡ Medium</button>
+            <button class="ftab" data-sev="LOW">💡 Low</button>
+          </div>
+          <div class="filter-tabs" id="type-tabs">
+            <button class="ftab active" data-type="ALL">All Types</button>
+            <button class="ftab" data-type="BINARY">Binary</button>
+            <button class="ftab" data-type="MULTI_OUTCOME">Multi</button>
+          </div>
+        </div>
+        <div class="toolbar-r">
+          <label class="toggle" onclick="toggleAuto()">
+            <div class="toggle-sw" id="auto-sw"><div class="toggle-th"></div></div>
+            Auto-refresh
+          </label>
+          <button class="btn btn-primary" id="scan-btn" onclick="polyScan()">🎯 Scan Now</button>
+          <button class="btn btn-ghost btn-sm" onclick="polyScanAlert()">📱 + Alert</button>
+        </div>
+      </div>
+
+      <div id="scan-stats" style="display:none;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="stat-card sc-poly" style="padding:11px 14px">
+            <div class="stat-label">Scanned</div>
+            <div class="stat-val sv-poly" style="font-size:22px" id="ss-scanned">0</div>
+          </div>
+          <div class="stat-card sc-red" style="padding:11px 14px">
+            <div class="stat-label">High</div>
+            <div class="stat-val sv-red" style="font-size:22px" id="ss-high">0</div>
+          </div>
+          <div class="stat-card sc-yellow" style="padding:11px 14px">
+            <div class="stat-label">Medium</div>
+            <div class="stat-val sv-yellow" style="font-size:22px" id="ss-med">0</div>
+          </div>
+          <div class="stat-card sc-green" style="padding:11px 14px">
+            <div class="stat-label">Low</div>
+            <div class="stat-val sv-green" style="font-size:22px" id="ss-low">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="opp-wrap">
+        <div class="card">
+          <div class="card-empty">
+            <div class="ei">🎯</div>
+            Click "Scan Now" to discover arbitrage opportunities.<br><br>
+            <button class="btn btn-primary btn-sm" onclick="polyScan()">Start Scanning</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- META ADS -->
+    <div class="view" id="view-meta">
+      <div class="ph">
+        <div class="ph-title">📈 Meta Ads Monitor</div>
+        <div class="ph-sub">Traffic-light scoring across your active campaigns</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-l">
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:10px">
+            <div class="stat-card sc-red" style="padding:11px 14px">
+              <div class="stat-label">Red Alerts</div>
+              <div class="stat-val sv-red" style="font-size:22px" id="m-red">—</div>
+            </div>
+            <div class="stat-card sc-yellow" style="padding:11px 14px">
+              <div class="stat-label">Yellow</div>
+              <div class="stat-val sv-yellow" style="font-size:22px" id="m-yel">—</div>
+            </div>
+            <div class="stat-card sc-green" style="padding:11px 14px">
+              <div class="stat-label">Scale</div>
+              <div class="stat-val sv-green" style="font-size:22px" id="m-grn">—</div>
+            </div>
+            <div class="stat-card sc-meta" style="padding:11px 14px">
+              <div class="stat-label">Total Ads</div>
+              <div class="stat-val sv-meta" style="font-size:22px" id="m-tot">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar-r">
+          <button class="btn btn-meta" id="meta-btn" onclick="metaScan()">📊 Scan Ads</button>
+          <button class="btn btn-ghost btn-sm" onclick="metaScanAlert()">📱 + Alert</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title" style="color:var(--red)">🔴 Red Alerts — Cut These</span>
+          <span style="font-size:11px;color:var(--muted)" id="meta-ts"></span>
+        </div>
+        <div id="m-red-list"><div class="card-empty">Run a scan to see alerts</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-title" style="color:var(--green)">🟢 Scale Opportunities</span></div>
+        <div id="m-grn-list"><div class="card-empty">Run a scan to see winners</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title" style="color:var(--yellow)">🟡 Watch — Yellow Alerts</span></div>
+        <div id="m-yel-list"><div class="card-empty">Run a scan to see yellow alerts</div></div>
+      </div>
+    </div>
+
+    <!-- GUIDE -->
+    <div class="view" id="view-guide">
+      <div class="ph">
+        <div class="ph-title">📖 How Polymarket Arbitrage Works</div>
+        <div class="ph-sub">A complete guide to risk-free arbitrage on prediction markets</div>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-title">🎯 What Is Binary Arbitrage?</div>
+        <div class="guide-text">
+          <p>Every Polymarket binary market has two tokens: <strong>YES</strong> and <strong>NO</strong>. Exactly one resolves to $1.00 at expiry — the other to $0. In a perfectly efficient market, YES&nbsp;price + NO&nbsp;price = $1.00 exactly.</p>
+          <p>In practice, thin liquidity, wide spreads, and market-maker pricing can cause the sum to temporarily fall <em>below</em> $1.00 — creating a guaranteed profit window.</p>
+        </div>
+        <div class="guide-example">
+          <div class="guide-et">💡 Example</div>
+          <div class="guide-text">
+            <p>Market: "Will BTC exceed $120k by Dec 2025?"</p>
+            <p>YES ask: <strong>$0.44</strong> &nbsp;|&nbsp; NO ask: <strong>$0.52</strong> &nbsp;|&nbsp; Total cost: <strong>$0.96</strong></p>
+            <p>Buy both → guaranteed $1.00 payout → gross profit: <strong style="color:var(--green)">$0.04 (4.2%)</strong></p>
+            <p>After ~2% Polymarket fee: <strong style="color:var(--green)">~2.2% net profit</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-title">📋 How to Execute the Trade</div>
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-sc"><strong>Find an opportunity</strong> — ArbiScan scans markets where YES&nbsp;ask + NO&nbsp;ask &lt; $0.98 (accounting for fees). Click any card to see the full profit breakdown.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-sc"><strong>Open Polymarket</strong> — Click "View Market" to go directly to the market. You need a Polymarket account funded with USDC on Polygon.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-sc"><strong>Buy YES tokens</strong> — Place a buy at the ask price shown. Check order book depth matches the "Max Shares" figure ArbiScan shows.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-sc"><strong>Buy NO tokens immediately</strong> — Prices change; execute both legs as fast as possible. The total cost of both must still be &lt; $1.00.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-sc"><strong>Hold to resolution</strong> — One token pays $1.00, the other $0. Your profit is the gap between your total cost and $1.00.</div>
+        </div>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-title">⚠️ Risks to Know</div>
+        <div class="guide-box">
+          <p><strong>Execution risk</strong> — Prices update between scan and trade. ArbiScan is not a real-time trading engine. Always verify prices on Polymarket before executing.</p>
+          <p style="margin-top:10px"><strong>Liquidity risk</strong> — "Max Shares" is based on visible ask depth. Large orders may move the price. Start with small sizes to test.</p>
+          <p style="margin-top:10px"><strong>Resolution risk</strong> — Markets can be disputed or voided. Read market rules before trading.</p>
+          <p style="margin-top:10px"><strong>Fee risk</strong> — ArbiScan uses ~2% as the fee estimate. Confirm current rates on Polymarket — they vary by market.</p>
+        </div>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-title">❓ FAQ</div>
+        <div class="faq-item">
+          <div class="faq-q">Why do these opportunities exist?</div>
+          <div class="faq-a">Thin liquidity and wide market-maker spreads on low-volume markets cause YES + NO prices to temporarily deviate. High-volume markets are usually efficient; smaller markets are where arb appears.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How often does ArbiScan find HIGH opportunities?</div>
+          <div class="faq-a">HIGH (&gt;3% net) are uncommon. MEDIUM (1–3%) appear more regularly. LOW (&lt;1%) are frequent but may not be worthwhile after slippage and gas costs.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What is multi-outcome arbitrage?</div>
+          <div class="faq-a">Markets with 3+ outcomes (e.g. "Who wins the election?") should have all outcome prices sum to $1.00. If the sum of midpoint prices is below $1.00, buying all outcomes guarantees profit.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Is this legal?</div>
+          <div class="faq-a">Arbitrage is a standard market-efficiency mechanism and is legal. Verify Polymarket's terms and your local regulations before trading real funds.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does the WhatsApp alert work?</div>
+          <div class="faq-a">The scanner runs automatically every 15 minutes. When HIGH opportunities are detected, an immediate WhatsApp alert is sent via Twilio. Reply "poly" or "arb" to trigger an on-demand scan.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS & SETUP -->
+    <div class="view" id="view-alerts">
+      <div class="ph">
+        <div class="ph-title">📱 Alerts &amp; Setup</div>
+        <div class="ph-sub">Configure WhatsApp alerts and review the automated schedule</div>
+      </div>
+
+      <div class="alert-info">ℹ️ Alerts sent via Twilio WhatsApp. Set <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, and <code>WHATSAPP_TO</code> in your <code>.env</code> file.</div>
+
+      <div class="two-col" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🎯 Polymarket Commands</span></div>
+          <table>
+            <tr><td style="color:var(--poly);font-family:monospace;padding:9px 14px">poly</td><td class="c-muted">Run on-demand arb scan</td></tr>
+            <tr><td style="color:var(--poly);font-family:monospace;padding:9px 14px">arb</td><td class="c-muted">Alias for "poly"</td></tr>
+            <tr><td style="color:var(--poly);font-family:monospace;padding:9px 14px">help</td><td class="c-muted">Show all commands</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title" style="color:var(--meta)">📊 Meta Ads Commands</span></div>
+          <table>
+            <tr><td style="color:var(--meta);font-family:monospace;padding:9px 14px">scan</td><td class="c-muted">Check all active ads</td></tr>
+            <tr><td style="color:var(--meta);font-family:monospace;padding:9px 14px">cut</td><td class="c-muted">List underperforming ads</td></tr>
+            <tr><td style="color:var(--meta);font-family:monospace;padding:9px 14px">APPROVE CUTS</td><td class="c-muted">Pause all red ads</td></tr>
+            <tr><td style="color:var(--meta);font-family:monospace;padding:9px 14px">scale</td><td class="c-muted">Show winning ads</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><span class="card-title">⏰ Automated Schedule</span></div>
+        <table>
+          <thead><tr><th>Trigger</th><th>Action</th><th>Cadence</th></tr></thead>
+          <tbody>
+            <tr><td>HIGH arb detected</td><td>Instant WhatsApp alert with opportunity details</td><td>Every 15 min</td></tr>
+            <tr><td>Polymarket daily report</td><td>Full scan summary with all opportunities</td><td>7:00 AM Nairobi</td></tr>
+            <tr><td>Meta Ads red alert</td><td>Alert with underperforming ad list</td><td>Every hour</td></tr>
+            <tr><td>Meta Ads daily summary</td><td>Red / yellow / green counts</td><td>8:00 AM Nairobi</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="testWA()">🧪 Send Test Message</button>
+        <button class="btn btn-ghost" onclick="testPolyAlert()">🎯 Test Poly Alert</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Opportunity Detail Modal -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div id="modal-body"></div>
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast"><span id="t-icon">ℹ️</span><span id="t-msg"></span></div>
 
 <script>
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+// ── Helpers ───────────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmt(n,d=2){return parseFloat(n||0).toFixed(d)}
+
+// ── State ─────────────────────────────────────────────────────────────
+const S = {
+  view:'dashboard',
+  polyRes:null,
+  metaRes:null,
+  oppMap:{},        // marketId → opp
+  sevFilter:'ALL',
+  typeFilter:'ALL',
+  autoOn:false,
+  autoTimer:null,
+  countdownInterval:null,
+  hist:JSON.parse(localStorage.getItem('arbi_hist')||'[]'),
+};
+
+// ── Navigation ────────────────────────────────────────────────────────
+const PAGE_NAMES={dashboard:'Dashboard',scanner:'Arb Scanner',meta:'Ads Monitor',guide:'How It Works',alerts:'Alerts & Setup'};
+function nav(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v)?.classList.add('active');
+  document.getElementById('tb-page').textContent=PAGE_NAMES[v]||v;
+  S.view=v;
+  if(v==='dashboard')renderDash();
+  if(v==='scanner'&&S.polyRes)renderOpps();
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
 }
 
-async function scan() {
-  document.getElementById('status-text').textContent = 'Scanning…';
-  toast('Scanning your Meta account…');
-  try {
-    const res = await fetch('/api/scan');
-    const data = await res.json();
-    renderResults(data);
-    document.getElementById('status-text').textContent = 'Live · act_2091379461674287';
-    document.getElementById('last-scan').textContent = 'Last scan: ' + new Date().toLocaleTimeString();
-  } catch(e) {
-    toast('Error: ' + e.message);
-    document.getElementById('status-text').textContent = 'Error — retry';
-  }
+// ── Toast ─────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg,icon='ℹ️'){
+  clearTimeout(toastT);
+  document.getElementById('t-msg').textContent=msg;
+  document.getElementById('t-icon').textContent=icon;
+  document.getElementById('toast').classList.add('show');
+  toastT=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3500);
 }
 
-async function scanAndAlert() {
-  toast('Scanning + sending WhatsApp alert…');
-  const res = await fetch('/api/scan-and-alert', { method: 'POST' });
-  const data = await res.json();
-  renderResults(data);
-  toast('✅ WhatsApp alert sent to +254724485173');
-}
-
-async function testWhatsApp() {
-  toast('Sending test WhatsApp…');
-  await fetch('/api/send-whatsapp', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: '✅ Meta Ads Agent test message — connected and running!' })
-  });
-  toast('✅ Test sent to +254724485173');
-}
-
-async function pauseAd(adId, adName) {
-  if (!confirm(`Pause ad: ${adName}?`)) return;
-  const res = await fetch('/api/pause-ad', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ adId })
-  });
-  const data = await res.json();
-  toast(data.success ? `✂️ Paused: ${adName}` : 'Error pausing ad');
-  setTimeout(scan, 1000);
-}
-
-function renderResults(data) {
-  document.getElementById('total-ads').textContent = data.totalAds || 0;
-  document.getElementById('red-count').textContent = data.redAlerts?.length || 0;
-  document.getElementById('yellow-count').textContent = data.yellowAlerts?.length || 0;
-  document.getElementById('green-count').textContent = data.greenAlerts?.length || 0;
-
-  renderList('red-list', data.redAlerts || [], 'red');
-  renderList('green-list', data.greenAlerts || [], 'green');
-  renderList('yellow-list', data.yellowAlerts || [], 'yellow');
-}
-
-function renderList(elId, items, type) {
-  const el = document.getElementById(elId);
-  if (!items.length) { el.innerHTML = '<div class="empty">None</div>'; return; }
-  el.innerHTML = items.map(item => `
-    <div class="alert-item">
-      <div>
-        <div class="alert-name">${item.adName || 'Unknown Ad'}</div>
-        <div class="alert-meta">Campaign: ${item.campaignName} · Spend: $${parseFloat(item.spend||0).toFixed(2)} · ${item.alert.metric}: ${item.alert.value}</div>
-        <div class="alert-meta" style="margin-top:3px;color:${type==='red'?'var(--red)':type==='green'?'var(--green)':'var(--yellow)'}">${item.alert.reason}</div>
+// ── Modal ─────────────────────────────────────────────────────────────
+function openModal(id){
+  const opp=S.oppMap[id];
+  if(!opp)return;
+  const body=document.getElementById('modal-body');
+  if(opp.type==='BINARY'){
+    const gross=(1-opp.totalCost);
+    body.innerHTML=`
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <span class="badge b-${opp.severity.toLowerCase()}">${esc(opp.severity)}</span>
+        <span class="badge b-binary">BINARY</span>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <span class="badge badge-${type}">${item.alert.verdict}</span>
-        ${type === 'red' && item.adId ? `<button class="btn btn-red" onclick="pauseAd('${item.adId}','${item.adName}')">Pause</button>` : ''}
+      <div class="modal-title">${esc(opp.question)}</div>
+      <div class="modal-sub">Binary prediction market</div>
+      <div class="modal-sl">Profit Breakdown</div>
+      <div class="calc">
+        <div class="calc-row"><span>YES ask price</span><span>$${fmt(opp.yesAsk,4)}</span></div>
+        <div class="calc-row"><span>NO ask price</span><span>$${fmt(opp.noAsk,4)}</span></div>
+        <div class="calc-row total"><span>Total cost</span><span>$${fmt(opp.totalCost,4)}</span></div>
+        <div class="calc-row"><span>Guaranteed payout</span><span>$1.0000</span></div>
+        <div class="calc-row"><span>Gross profit</span><span>$${gross.toFixed(4)} (${esc(opp.grossProfitPct)}%)</span></div>
+        <div class="calc-row total profit-row"><span>Net profit (after ~2% fee)</span><span>${esc(opp.netProfitPct)}%</span></div>
+      </div>
+      <div class="modal-sl">Position Size</div>
+      <div class="modal-metrics">
+        <div class="modal-m"><div class="modal-ml">Max Shares</div><div class="modal-mv">${(opp.maxShares||0).toLocaleString()}</div></div>
+        <div class="modal-m"><div class="modal-ml">Max Net Profit</div><div class="modal-mv profit">$${esc(opp.maxNetProfit)}</div></div>
+      </div>
+      <div class="modal-actions">
+        <a href="${esc(opp.url)}" target="_blank" rel="noopener" class="btn btn-primary">↗ Open on Polymarket</a>
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      </div>`;
+  } else {
+    body.innerHTML=`
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <span class="badge b-${opp.severity.toLowerCase()}">${esc(opp.severity)}</span>
+        <span class="badge b-multi">MULTI-OUTCOME</span>
+      </div>
+      <div class="modal-title">${esc(opp.question)}</div>
+      <div class="modal-sub">${(opp.outcomes||[]).length} outcomes</div>
+      <div class="modal-sl">Price Summary</div>
+      <div class="calc">
+        ${(opp.outcomes||[]).map((o,i)=>`<div class="calc-row"><span>Outcome ${i+1} midpoint</span><span>$${fmt(o.mid,4)}</span></div>`).join('')}
+        <div class="calc-row total"><span>Sum of all outcomes</span><span>$${esc(opp.totalMidSum)}</span></div>
+        <div class="calc-row total profit-row"><span>Net profit estimate</span><span>${esc(opp.netProfitPct)}%</span></div>
+      </div>
+      <div class="modal-actions">
+        <a href="${esc(opp.url)}" target="_blank" rel="noopener" class="btn btn-primary">↗ Open on Polymarket</a>
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      </div>`;
+  }
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open')}
+
+// ── Polymarket Scanner ────────────────────────────────────────────────
+let scanning=false;
+let progInt;
+
+async function polyScan(){
+  if(scanning){toast('Scan already running…','⏳');return}
+  scanning=true;
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Scanning…';
+  document.getElementById('prog-area').style.display='block';
+  let p=3;
+  progInt=setInterval(()=>{
+    p=Math.min(p+1.2,88);
+    document.getElementById('prog-fill').style.width=p+'%';
+    document.getElementById('prog-text').textContent=`Scanning markets… ${Math.round(p)}%`;
+  },700);
+  try{
+    const res=await fetch('/api/polymarket/scan?limit=200');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    clearInterval(progInt);
+    document.getElementById('prog-fill').style.width='100%';
+    document.getElementById('prog-text').textContent=`✅ Done — ${data.opportunities?.length||0} opportunities across ${data.scanned} markets`;
+    S.polyRes=data;
+    // Index by marketId
+    S.oppMap={};
+    (data.opportunities||[]).forEach(o=>{S.oppMap[o.marketId]=o});
+    saveHist(data);
+    updatePolyStats(data);
+    renderOpps();
+    updateSbBadge();
+    if(S.view==='dashboard')renderDash();
+    document.getElementById('sb-last').textContent='Scan: '+new Date(data.timestamp).toLocaleTimeString();
+    toast(`${data.opportunities?.length||0} opportunities found`,'🎯');
+    setTimeout(()=>{document.getElementById('prog-area').style.display='none';document.getElementById('prog-fill').style.width='0%'},2000);
+  }catch(e){
+    clearInterval(progInt);
+    document.getElementById('prog-area').style.display='none';
+    toast('Scan error: '+e.message,'❌');
+  }
+  btn.disabled=false;btn.innerHTML='🎯 Scan Now';scanning=false;
+}
+
+async function polyScanAlert(){
+  toast('Scanning + sending alert…','📱');
+  try{
+    const res=await fetch('/api/polymarket/scan-and-alert',{method:'POST',headers:{'Content-Type':'application/json'}});
+    const data=await res.json();
+    S.polyRes=data;S.oppMap={};
+    (data.opportunities||[]).forEach(o=>{S.oppMap[o.marketId]=o});
+    saveHist(data);updatePolyStats(data);renderOpps();updateSbBadge();
+    if(S.view==='dashboard')renderDash();
+    toast('Scan done + alert sent','✅');
+  }catch(e){toast('Error: '+e.message,'❌')}
+}
+
+function updatePolyStats(data){
+  document.getElementById('scan-stats').style.display='block';
+  document.getElementById('ss-scanned').textContent=data.scanned||0;
+  document.getElementById('ss-high').textContent=data.highCount||0;
+  document.getElementById('ss-med').textContent=data.mediumCount||0;
+  document.getElementById('ss-low').textContent=data.lowCount||0;
+}
+
+function renderOpps(){
+  if(!S.polyRes)return;
+  let opps=S.polyRes.opportunities||[];
+  if(S.sevFilter!=='ALL')opps=opps.filter(o=>o.severity===S.sevFilter);
+  if(S.typeFilter!=='ALL')opps=opps.filter(o=>o.type===S.typeFilter);
+  const wrap=document.getElementById('opp-wrap');
+  if(!opps.length){
+    const msg=S.sevFilter!=='ALL'||S.typeFilter!=='ALL'?'No opportunities match filters.':'No arbitrage opportunities found.';
+    wrap.innerHTML=`<div class="card"><div class="card-empty"><div class="ei">🔍</div>${esc(msg)}</div></div>`;
+    return;
+  }
+  wrap.innerHTML=`<div class="opp-grid">${opps.map(oppCard).join('')}</div>`;
+}
+
+function oppCard(opp){
+  const metrics=opp.type==='BINARY'
+    ?`<div class="opp-m"><div class="opp-ml">YES Ask</div><div class="opp-mv">$${fmt(opp.yesAsk,3)}</div></div>
+       <div class="opp-m"><div class="opp-ml">NO Ask</div><div class="opp-mv">$${fmt(opp.noAsk,3)}</div></div>
+       <div class="opp-m"><div class="opp-ml">Net Profit</div><div class="opp-mv opp-mv-profit">${esc(opp.netProfitPct)}%</div></div>
+       <div class="opp-m"><div class="opp-ml">Max Profit</div><div class="opp-mv opp-mv-profit">$${esc(opp.maxNetProfit)}</div></div>`
+    :`<div class="opp-m"><div class="opp-ml">Price Sum</div><div class="opp-mv">$${esc(opp.totalMidSum)}</div></div>
+       <div class="opp-m"><div class="opp-ml">Gap</div><div class="opp-mv">$${esc(opp.gap)}</div></div>
+       <div class="opp-m" style="grid-column:span 2"><div class="opp-ml">Net Profit</div><div class="opp-mv opp-mv-profit">${esc(opp.netProfitPct)}%</div></div>`;
+  const typeLabel=opp.type==='BINARY'?'Binary':'Multi';
+  const mid=esc(opp.marketId);
+  return `<div class="opp-card sv-${esc(opp.severity)}" data-oid="${mid}">
+    <div class="opp-head">
+      <div class="opp-q">${esc(opp.question)}</div>
+      <span class="badge b-${opp.severity.toLowerCase()}">${esc(opp.severity)}</span>
+    </div>
+    <div class="opp-metrics">${metrics}</div>
+    <div class="opp-foot">
+      <span class="badge b-binary">${typeLabel}</span>
+      <div style="display:flex;gap:6px">
+        <a href="${esc(opp.url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" onclick="event.stopPropagation()">↗ View</a>
+        <button class="btn btn-primary btn-sm" data-oid="${mid}" onclick="event.stopPropagation();openModal('${mid}')">Details</button>
       </div>
     </div>
-  `).join('');
+  </div>`;
 }
 
-// Check health on load
-fetch('/api/health').then(r => r.json()).then(d => {
-  document.getElementById('status-text').textContent = 'Live · ' + d.account;
-  scan();
-}).catch(() => {
-  document.getElementById('status-text').textContent = 'Offline';
+// Event delegation for opp card clicks
+document.getElementById('opp-wrap').addEventListener('click',e=>{
+  const card=e.target.closest('[data-oid]');
+  if(card&&!e.target.closest('a')&&!e.target.closest('button'))openModal(card.dataset.oid);
 });
+
+// Filter tab handlers
+document.getElementById('sev-tabs').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-sev]');
+  if(!btn)return;
+  S.sevFilter=btn.dataset.sev;
+  document.querySelectorAll('#sev-tabs .ftab').forEach(t=>t.classList.toggle('active',t.dataset.sev===S.sevFilter));
+  renderOpps();
+});
+document.getElementById('type-tabs').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-type]');
+  if(!btn)return;
+  S.typeFilter=btn.dataset.type;
+  document.querySelectorAll('#type-tabs .ftab').forEach(t=>t.classList.toggle('active',t.dataset.type===S.typeFilter));
+  renderOpps();
+});
+
+function updateSbBadge(){
+  const n=(S.polyRes?.opportunities||[]).length;
+  const b=document.getElementById('sb-poly-badge');
+  b.textContent=n;b.style.display=n>0?'inline':'none';
+}
+
+// ── Auto Refresh ──────────────────────────────────────────────────────
+let countdown=0;
+function toggleAuto(){
+  S.autoOn=!S.autoOn;
+  document.getElementById('auto-sw').classList.toggle('on',S.autoOn);
+  document.getElementById('auto-indicator').classList.toggle('on',S.autoOn);
+  if(S.autoOn){startCountdown();toast('Auto-refresh ON — every 5 min','🔄')}
+  else{clearInterval(S.countdownInterval);toast('Auto-refresh OFF','ℹ️')}
+}
+function startCountdown(){
+  countdown=300;
+  clearInterval(S.countdownInterval);
+  S.countdownInterval=setInterval(()=>{
+    countdown--;
+    const m=Math.floor(countdown/60),s=countdown%60;
+    document.getElementById('auto-countdown').textContent=m+':'+(s<10?'0':'')+s;
+    if(countdown<=0){clearInterval(S.countdownInterval);polyScan().then(()=>{if(S.autoOn)startCountdown()})}
+  },1000);
+}
+
+function quickScan(){nav('scanner');setTimeout(polyScan,50)}
+
+// ── Meta Ads ──────────────────────────────────────────────────────────
+let metaScanning=false;
+async function metaScan(){
+  if(metaScanning)return;
+  metaScanning=true;
+  const btn=document.getElementById('meta-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Scanning…';
+  toast('Scanning Meta Ads…','📊');
+  try{
+    const res=await fetch('/api/scan');
+    const data=await res.json();
+    S.metaRes=data;renderMetaResults(data);
+    toast(`Done — ${data.redAlerts?.length||0} red alerts`,'📊');
+  }catch(e){toast('Error: '+e.message,'❌')}
+  btn.disabled=false;btn.innerHTML='📊 Scan Ads';metaScanning=false;
+}
+async function metaScanAlert(){
+  toast('Scanning + alert…','📱');
+  try{await fetch('/api/scan-and-alert',{method:'POST'});await metaScan();toast('Alert sent','✅')}
+  catch(e){toast('Error: '+e.message,'❌')}
+}
+function renderMetaResults(data){
+  document.getElementById('m-red').textContent=data.redAlerts?.length||0;
+  document.getElementById('m-yel').textContent=data.yellowAlerts?.length||0;
+  document.getElementById('m-grn').textContent=data.greenAlerts?.length||0;
+  document.getElementById('m-tot').textContent=data.totalAds||0;
+  document.getElementById('meta-ts').textContent='Last: '+new Date().toLocaleTimeString();
+  metaList('m-red-list',data.redAlerts||[],'red');
+  metaList('m-grn-list',data.greenAlerts||[],'green');
+  metaList('m-yel-list',data.yellowAlerts||[],'yellow');
+  const rc=data.redAlerts?.length||0;
+  const rb=document.getElementById('sb-meta-badge');
+  rb.textContent=rc;rb.style.display=rc>0?'inline':'none';
+}
+function metaList(id,items,type){
+  const el=document.getElementById(id);
+  if(!items.length){el.innerHTML='<div class="card-empty">None</div>';return}
+  const colorMap={red:'var(--red)',green:'var(--green)',yellow:'var(--yellow)'};
+  const badgeMap={red:'b-high',green:'b-low',yellow:'b-medium'};
+  el.innerHTML=`<table>
+    <thead><tr><th>Ad Name</th><th>Campaign</th><th>Metric</th><th>Spend</th><th></th></tr></thead>
+    <tbody>${items.map(item=>`<tr>
+      <td class="td-q" title="${esc(item.adName)}">${esc(item.adName||'Unknown')}</td>
+      <td class="td-muted">${esc(item.campaignName||'—')}</td>
+      <td>
+        <span style="color:${colorMap[type]};font-weight:600">${esc(item.alert.metric)}: ${esc(item.alert.value)}</span>
+        <div style="font-size:11px;color:var(--muted)">${esc(item.alert.reason)}</div>
+      </td>
+      <td>$${fmt(item.spend)}</td>
+      <td class="td-actions">
+        <span class="badge ${badgeMap[type]}">${esc(item.alert.verdict)}</span>
+        ${type==='red'&&item.adId?`<button class="btn btn-ghost btn-sm" onclick="pauseAd('${esc(item.adId)}','${esc(item.adName||'')}')">Pause</button>`:''}
+      </td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+async function pauseAd(adId,adName){
+  if(!confirm('Pause ad: '+adName+'?'))return;
+  toast('Pausing…','⏳');
+  try{
+    await fetch('/api/pause-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({adId})});
+    toast('Paused: '+adName,'✂️');setTimeout(metaScan,800);
+  }catch(e){toast('Error: '+e.message,'❌')}
+}
+
+// ── WhatsApp Tests ────────────────────────────────────────────────────
+async function testWA(){
+  toast('Sending test…','📱');
+  try{await fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'✅ ArbiScan test — connected!'})});toast('Test sent','✅')}
+  catch(e){toast('Error: '+e.message,'❌')}
+}
+async function testPolyAlert(){
+  toast('Triggering poly alert…','🎯');
+  try{await fetch('/api/polymarket/scan-and-alert',{method:'POST',headers:{'Content-Type':'application/json'}});toast('Alert sent','✅')}
+  catch(e){toast('Error: '+e.message,'❌')}
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────
+function renderDash(){
+  if(S.polyRes){
+    const d=S.polyRes;
+    document.getElementById('d-scanned').textContent=d.scanned||0;
+    document.getElementById('d-high').textContent=d.highCount||0;
+    document.getElementById('d-med').textContent=d.mediumCount||0;
+    document.getElementById('d-scan-ts').textContent='Last: '+new Date(d.timestamp).toLocaleTimeString();
+    const best=d.opportunities?.[0];
+    if(best){
+      document.getElementById('d-best').textContent=best.netProfitPct+'%';
+      document.getElementById('d-best-q').textContent=(best.question||'').slice(0,44)+'…';
+    }else{
+      document.getElementById('d-best').textContent='—';
+      document.getElementById('d-best-q').textContent='No opportunities';
+    }
+    const topOpps=(d.opportunities||[]).slice(0,5);
+    const topEl=document.getElementById('d-top');
+    if(!topOpps.length){topEl.innerHTML='<div class="card-empty">No opportunities in last scan.</div>';return}
+    topEl.innerHTML=`<table>
+      <thead><tr><th>Market</th><th>Type</th><th>Severity</th><th>Net Profit</th><th></th></tr></thead>
+      <tbody>${topOpps.map(opp=>`<tr style="cursor:pointer" onclick="openModal('${esc(opp.marketId)}')">
+        <td class="td-q" title="${esc(opp.question)}">${esc(opp.question)}</td>
+        <td><span class="badge b-binary">${opp.type==='BINARY'?'Binary':'Multi'}</span></td>
+        <td><span class="badge b-${opp.severity.toLowerCase()}">${esc(opp.severity)}</span></td>
+        <td class="td-profit">${esc(opp.netProfitPct)}%</td>
+        <td class="td-actions"><a href="${esc(opp.url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" onclick="event.stopPropagation()">↗</a></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+  renderHistUI();
+}
+
+// ── History ───────────────────────────────────────────────────────────
+function saveHist(data){
+  S.hist.unshift({time:data.timestamp,scanned:data.scanned,total:data.opportunities?.length||0,high:data.highCount||0,med:data.mediumCount||0,low:data.lowCount||0});
+  S.hist=S.hist.slice(0,10);
+  localStorage.setItem('arbi_hist',JSON.stringify(S.hist));
+}
+function renderHistUI(){
+  const el=document.getElementById('hist-list');
+  if(!S.hist.length){el.innerHTML='<div class="card-empty">No history yet</div>';return}
+  el.innerHTML=S.hist.map(h=>`<div class="hist-item">
+    <div class="hist-dot"></div>
+    <div class="hist-time">${new Date(h.time).toLocaleTimeString()}</div>
+    <div class="hist-stats">
+      <div><span>Scanned:</span> <strong>${h.scanned}</strong></div>
+      <div><span>Found:</span> <strong>${h.total}</strong></div>
+      <div style="color:var(--red)">🔥 ${h.high}</div>
+      <div style="color:var(--yellow)">⚡ ${h.med}</div>
+      <div style="color:var(--green)">💡 ${h.low}</div>
+    </div>
+  </div>`).join('');
+}
+function clearHist(){S.hist=[];localStorage.removeItem('arbi_hist');renderHistUI();toast('History cleared','ℹ️')}
+
+// ── Init ──────────────────────────────────────────────────────────────
+async function init(){
+  // Health check
+  try{
+    const res=await fetch('/api/health');
+    const d=await res.json();
+    document.getElementById('sb-status').textContent='● Online';
+    document.getElementById('sys-meta').textContent='Account: '+(d.account||'configured');
+  }catch{
+    document.getElementById('sb-status').textContent='● Offline';
+    const dot=document.getElementById('sb-dot');
+    dot.style.background='var(--red)';dot.style.boxShadow='0 0 0 2px rgba(255,107,107,.2)';
+  }
+  // Poly scanner status
+  try{
+    const res=await fetch('/api/polymarket/status');
+    const d=await res.json();
+    document.getElementById('sys-poly').textContent=d.lastScan?'Last scan: '+new Date(d.lastScan).toLocaleTimeString():'Idle — run a scan';
+  }catch{}
+  // Load cached poly results
+  try{
+    const res=await fetch('/api/polymarket/cache');
+    if(res.ok){
+      const d=await res.json();
+      S.polyRes=d;S.oppMap={};
+      (d.opportunities||[]).forEach(o=>{S.oppMap[o.marketId]=o});
+      updatePolyStats(d);updateSbBadge();
+      document.getElementById('sb-last').textContent='Cached: '+new Date(d.timestamp).toLocaleTimeString();
+    }
+  }catch{}
+  renderDash();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+  if(e.altKey&&e.key==='s'){nav('scanner');setTimeout(polyScan,50)}
+  if(e.altKey&&e.key==='d')nav('dashboard');
+  if(e.altKey&&e.key==='m')nav('meta');
+});
+
+// Close mobile sidebar on outside click
+document.addEventListener('click',e=>{
+  const sb=document.getElementById('sidebar');
+  if(sb.classList.contains('open')&&!sb.contains(e.target))sb.classList.remove('open');
+});
+
+init();
 </script>
 </body>
 </html>
